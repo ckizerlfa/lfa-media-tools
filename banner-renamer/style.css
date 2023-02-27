@@ -10,9 +10,9 @@ body {
 .container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
   margin: 0;
   font-family: Arial, sans-serif;
 }
@@ -20,6 +20,7 @@ body {
 h1 {
   text-align: center;
   font-size: 2em;
+  margin-top: 2em;
   margin-bottom: 1em;
 }
 
@@ -33,6 +34,8 @@ form {
   border: 1px solid #ccc;
   border-radius: 5px;
 }
+
+
 
 label {
   font-size: 1.2em;
