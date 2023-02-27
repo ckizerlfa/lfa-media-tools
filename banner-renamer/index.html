@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Banner Renamer</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="jszip.min.js"></script>
+  <script src="FileSaver.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Banner Renamer</h1>
+    <form enctype="multipart/form-data" onsubmit="event.preventDefault(); renameAndZip()">
+      <label for="file-upload">Select Images to Rename:</label>
+      <input type="file" id="file-upload" name="file-upload[]" multiple>
+      <br><br>
+      <label for="ad-name">Enter Ad Name:</label>
+      <input type="text" id="ad-name" name="ad-name">
+      <br><br>
+      <button type="button" onclick="renameAndZip()">Rename Selected Files</button>
+    </form>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
