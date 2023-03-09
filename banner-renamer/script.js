@@ -20,6 +20,9 @@ function renameAndZip() {
   // Create a new zip object
   const zip = new JSZip();
 
+  // Create a new CSV object
+  const csv = [];
+
   // Loop through the selected files
   for (let i = 0; i < fileInput.files.length; i++) {
     const file = fileInput.files[i];
@@ -36,8 +39,14 @@ function renameAndZip() {
       const newName = adName + "_" + dimensions + "." + fileExtension; // preserve the file extension
       zip.file(newName, file);
 
+      // Add the file name to the CSV array
+      csv.push(newName);
+
       // Check if all files have been processed
       if (i === fileInput.files.length - 1) {
+        // Add the CSV file to the zip object
+        zip.file(adName + ".csv", csv.join("\n"));
+
         // Generate the zip file and download it
         zip.generateAsync({ type: "blob" }).then(function(content) {
           saveAs(content, adName + ".zip");
@@ -45,4 +54,4 @@ function renameAndZip() {
       }
     };
   }
-} 
+}
