@@ -39,8 +39,8 @@ function renameAndZip() {
       const newName = adName + "_" + dimensions + "." + fileExtension; // preserve the file extension
       zip.file(newName, file);
 
-      // Add the file name to the CSV array
-      csv.push(newName);
+      // Add the file name to the CSV array without the file extension
+      csv.push(newName.replace("." + fileExtension, ""));
 
       // Check if all files have been processed
       if (i === fileInput.files.length - 1) {
