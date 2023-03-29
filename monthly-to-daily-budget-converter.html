@@ -52,7 +52,7 @@
           const result = {};
           for (let i = 1; i < sheetData.length; i++) {
             const row = sheetData[i];
-            const month = row[0];
+            const month = moment(row[0]).format('MMMM YYYY');
             const campaignName = row[1];
             const monthlyBudget = row[2];
             const year = moment().year();
@@ -95,7 +95,7 @@
         <ul>
           <li>File Format: .xlsx</li>
           <li>Column Names must EXACTLY match: Month, Campaign Name, Monthly Budget</li>
-          <li>Month MUST be the first day of the month</li>
+          <li>Month MUST be in TEXT format, and CANNOT be a Date format. For example, "April 2023" will work, but "4/1/2023" would not.</li>
         </ul>
       </div>
     <form>
