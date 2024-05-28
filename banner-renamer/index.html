@@ -160,11 +160,6 @@
             const variant = document.getElementById('variant').value;
             const variantDescription = document.getElementById('variantDescription').value.trim();
             
-            if (!baseAdName) {
-                alert('Please enter a Base Ad Name.');
-                return;
-            }
-
             const renamedFiles = await renameFiles(baseAdName, casingOption, dimensionCasingOption, includeVariant, variant, variantDescription);
             createZip(renamedFiles);
         });
@@ -193,11 +188,6 @@
             const includeVariant = document.querySelector('input[name="includeVariant"]:checked').value;
             const variant = document.getElementById('variant').value;
             const variantDescription = document.getElementById('variantDescription').value.trim();
-            
-            if (!baseAdName) {
-                alert('Please enter a Base Ad Name.');
-                return;
-            }
 
             const renamedFiles = await generatePreview(baseAdName, casingOption, dimensionCasingOption, includeVariant, variant, variantDescription);
             updateFileList(renamedFiles);
