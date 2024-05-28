@@ -1,25 +1,304 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Banner Renamer</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="jszip.min.js"></script>
-  <script src="FileSaver.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Renamer</title>
+    <style>
+        #dropArea {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin: 10px 0;
+        }
+        #dropArea.dragover {
+            border-color: #000;
+        }
+        #fileTable {
+            display: none;
+        }
+        #variantOptions {
+            display: none;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Banner Renamer</h1>
-    <form enctype="multipart/form-data" onsubmit="event.preventDefault(); renameAndZip()">
-      <label for="file-upload">Select Images to Rename:</label>
-      <input type="file" id="file-upload" name="file-upload[]" multiple>
-      <br><br>
-      <label for="ad-name">Enter Ad Name:</label>
-      <h5>Image Dimensions will be added to the end of the file name</h5>
-      <input type="text" id="ad-name" name="ad-name">
-      <br><br>
-      <button type="button" onclick="renameAndZip()">Rename Selected Files</button>
-    </form>
-  </div>
-  <script src="script.js"></script>
+    <h1>File Renamer</h1>
+
+    <label for="baseAdName">Base Ad Name:</label>
+    <input type="text" id="baseAdName" maxlength="100">
+    <br><br>
+
+    <label>Casing Options:</label>
+    <input type="radio" id="forceUppercase" name="casing" value="uppercase" checked>
+    <label for="forceUppercase">Force Uppercase</label>
+    <input type="radio" id="forceLowercase" name="casing" value="lowercase">
+    <label for="forceLowercase">Force Lowercase</label>
+    <input type="radio" id="keepCasing" name="casing" value="keep">
+    <label for="keepCasing">Keep Casing</label>
+    <br><br>
+
+    <label>Dimension Options:</label>
+    <input type="radio" id="uppercaseX" name="dimensionCasing" value="uppercase" checked>
+    <label for="uppercaseX">Uppercase X in Dimensions</label>
+    <input type="radio" id="lowercaseX" name="dimensionCasing" value="lowercase">
+    <label for="lowercaseX">Lowercase x in Dimensions</label>
+    <br><br>
+
+    <label>Include A/B Variant Suffix?</label>
+    <input type="radio" id="includeVariantNo" name="includeVariant" value="no" checked>
+    <label for="includeVariantNo">No</label>
+    <input type="radio" id="includeVariantYes" name="includeVariant" value="yes">
+    <label for="includeVariantYes">Yes</label>
+    <br><br>
+
+    <div id="variantOptions">
+        <label for="variant">Variant:</label>
+        <select id="variant">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+        </select>
+        <br><br>
+
+        <label for="variantDescription">Variant Description:</label>
+        <input type="text" id="variantDescription" maxlength="100">
+        <br><br>
+    </div>
+
+    <div id="dropArea">Drag and drop files here</div>
+    <button id="selectFiles">Select Files</button>
+    <button id="clearList">Clear List</button>
+    <button id="renameFiles">Rename Files</button>
+    <br><br>
+
+    <div id="fileTable">
+        <table id="fileList" border="1">
+            <thead>
+                <tr>
+                    <th>Original Filename</th>
+                    <th>Renamed Filename</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    <br>
+
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script>
+        const selectFilesButton = document.getElementById('selectFiles');
+        const clearListButton = document.getElementById('clearList');
+        const renameFilesButton = document.getElementById('renameFiles');
+        const fileList = document.getElementById('fileList').querySelector('tbody');
+        const dropArea = document.getElementById('dropArea');
+        const fileTable = document.getElementById('fileTable');
+        const variantOptions = document.getElementById('variantOptions');
+        let selectedFiles = [];
+
+        document.querySelectorAll('input[name="includeVariant"]').forEach((elem) => {
+            elem.addEventListener('change', () => {
+                if (document.getElementById('includeVariantYes').checked) {
+                    variantOptions.style.display = 'block';
+                } else {
+                    variantOptions.style.display = 'none';
+                }
+                previewFiles();
+            });
+        });
+
+        document.getElementById('baseAdName').addEventListener('input', previewFiles);
+        document.querySelectorAll('input[name="casing"]').forEach((elem) => elem.addEventListener('change', previewFiles));
+        document.querySelectorAll('input[name="dimensionCasing"]').forEach((elem) => elem.addEventListener('change', previewFiles));
+        document.getElementById('variant').addEventListener('change', previewFiles);
+        document.getElementById('variantDescription').addEventListener('input', previewFiles);
+
+        dropArea.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dropArea.classList.add('dragover');
+        });
+
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.classList.remove('dragover');
+        });
+
+        dropArea.addEventListener('drop', (event) => {
+            event.preventDefault();
+            dropArea.classList.remove('dragover');
+            selectedFiles = Array.from(event.dataTransfer.files).slice(0, 20);
+            updateFileList();
+            previewFiles();
+        });
+
+        selectFilesButton.addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/jpeg,image/png,image/gif';
+            input.multiple = true;
+            input.onchange = () => {
+                selectedFiles = Array.from(input.files).slice(0, 20);
+                updateFileList();
+                previewFiles();
+            };
+            input.click();
+        });
+
+        clearListButton.addEventListener('click', () => {
+            selectedFiles = [];
+            updateFileList();
+            previewFiles();
+        });
+
+        renameFilesButton.addEventListener('click', async () => {
+            const baseAdName = document.getElementById('baseAdName').value.trim();
+            const casingOption = document.querySelector('input[name="casing"]:checked').value;
+            const dimensionCasingOption = document.querySelector('input[name="dimensionCasing"]:checked').value;
+            const includeVariant = document.querySelector('input[name="includeVariant"]:checked').value;
+            const variant = document.getElementById('variant').value;
+            const variantDescription = document.getElementById('variantDescription').value.trim();
+            
+            if (!baseAdName) {
+                alert('Please enter a Base Ad Name.');
+                return;
+            }
+
+            const renamedFiles = await renameFiles(baseAdName, casingOption, dimensionCasingOption, includeVariant, variant, variantDescription);
+            createZip(renamedFiles);
+        });
+
+        function updateFileList(renamedFiles = []) {
+            fileList.innerHTML = '';
+            selectedFiles.forEach((file, index) => {
+                const row = document.createElement('tr');
+                const originalCell = document.createElement('td');
+                originalCell.textContent = file.name;
+                row.appendChild(originalCell);
+                
+                const previewCell = document.createElement('td');
+                previewCell.textContent = renamedFiles[index] ? renamedFiles[index].name : 'N/A';
+                row.appendChild(previewCell);
+                
+                fileList.appendChild(row);
+            });
+            fileTable.style.display = 'block';
+        }
+
+        async function previewFiles() {
+            const baseAdName = document.getElementById('baseAdName').value.trim();
+            const casingOption = document.querySelector('input[name="casing"]:checked').value;
+            const dimensionCasingOption = document.querySelector('input[name="dimensionCasing"]:checked').value;
+            const includeVariant = document.querySelector('input[name="includeVariant"]:checked').value;
+            const variant = document.getElementById('variant').value;
+            const variantDescription = document.getElementById('variantDescription').value.trim();
+            
+            if (!baseAdName) {
+                alert('Please enter a Base Ad Name.');
+                return;
+            }
+
+            const renamedFiles = await generatePreview(baseAdName, casingOption, dimensionCasingOption, includeVariant, variant, variantDescription);
+            updateFileList(renamedFiles);
+        }
+
+        async function generatePreview(baseAdName, casingOption, dimensionCasingOption, includeVariant, variant, variantDescription) {
+            const renamedFiles = [];
+            for (const file of selectedFiles) {
+                const dimensions = await getImageDimensions(file);
+                let newFileName = `${baseAdName}_${dimensions}`;
+                if (includeVariant === 'yes') {
+                    newFileName += `.${variant}_${variantDescription.replace(/ /g, '_')}`;
+                }
+
+                if (casingOption === 'uppercase') {
+                    newFileName = newFileName.toUpperCase();
+                } else if (casingOption === 'lowercase') {
+                    newFileName = newFileName.toLowerCase();
+                }
+
+                if (dimensionCasingOption === 'lowercase') {
+                    newFileName = newFileName.replace(/X/g, 'x');
+                } else if (dimensionCasingOption === 'uppercase') {
+                    newFileName = newFileName.replace(/x/g, 'X');
+                }
+
+                renamedFiles.push({ name: newFileName + getFileExtension(file.name) });
+            }
+            return renamedFiles;
+        }
+
+        async function renameFiles(baseAdName, casingOption, dimensionCasingOption, includeVariant, variant, variantDescription) {
+            const renamedFiles = [];
+            for (const file of selectedFiles) {
+                const dimensions = await getImageDimensions(file);
+                let newFileName = `${baseAdName}_${dimensions}`;
+                if (includeVariant === 'yes') {
+                    newFileName += `.${variant}_${variantDescription.replace(/ /g, '_')}`;
+                }
+
+                if (casingOption === 'uppercase') {
+                    newFileName = newFileName.toUpperCase();
+                } else if (casingOption === 'lowercase') {
+                    newFileName = newFileName.toLowerCase();
+                }
+
+                if (dimensionCasingOption === 'lowercase') {
+                    newFileName = newFileName.replace(/X/g, 'x');
+                } else if (dimensionCasingOption === 'uppercase') {
+                    newFileName = newFileName.replace(/x/g, 'X');
+                }
+
+                const existingFile = renamedFiles.find(f => f.name === newFileName + getFileExtension(file.name));
+                if (existingFile) {
+                    newFileName += casingOption === 'uppercase' ? '_V2' : '_v2';
+                }
+
+                renamedFiles.push(new File([file], newFileName + getFileExtension(file.name), { type: file.type }));
+            }
+            return renamedFiles;
+        }
+
+        function getFileExtension(filename) {
+            return filename.substring(filename.lastIndexOf('.'));
+        }
+
+        function getImageDimensions(file) {
+            return new Promise((resolve) => {
+                const img = document.createElement('img');
+                img.onload = () => {
+                    resolve(`${img.width}x${img.height}`);
+                };
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function createCsvContent(renamedFiles) {
+            let csvContent = "Original Filename,Renamed Filename\n";
+            renamedFiles.forEach((file, index) => {
+                const originalName = selectedFiles[index].name.replace(getFileExtension(selectedFiles[index].name), '');
+                const renamedName = file.name.replace(getFileExtension(file.name), '');
+                csvContent += `${originalName},${renamedName}\n`;
+            });
+            return csvContent;
+        }
+
+        function createZip(files) {
+            const zip = new JSZip();
+            files.forEach(file => {
+                zip.file(file.name, file);
+            });
+            const csvContent = createCsvContent(files);
+            zip.file('filenames.csv', csvContent);
+            zip.generateAsync({ type: 'blob' }).then((blob) => {
+                saveAs(blob, 'renamed_files.zip');
+            });
+        }
+    </script>
 </body>
 </html>
