@@ -5,87 +5,335 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Renamer</title>
     <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px 24px;
+            background: #f5f7fa;
+            color: #1a1a2e;
+            line-height: 1.5;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 16px;
+            color: #1a1a2e;
+        }
+
+        .page-layout {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6b7280;
+            margin: 0 0 8px;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 7px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            margin-top: 4px;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            background: #fff;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #4f6ef7;
+            box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.15);
+        }
+
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8125rem;
+            font-weight: 400;
+            border: 1px solid #e5e7eb;
+            transition: background 0.15s, border-color 0.15s;
+        }
+
+        .radio-group label:hover {
+            background: #f0f2ff;
+            border-color: #c7d0fe;
+        }
+
+        .radio-group input[type="radio"] {
+            accent-color: #4f6ef7;
+        }
+
+        .radio-group input[type="radio"]:checked + span {
+            color: #4f6ef7;
+            font-weight: 500;
+        }
+
+        select {
+            padding: 7px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            margin-top: 4px;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #4f6ef7;
+            box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.15);
+        }
+
         #dropArea {
-            border: 2px dashed #ccc;
-            padding: 20px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 24px 16px;
             text-align: center;
-            margin: 10px 0;
+            margin: 0;
+            background: #f8fafc;
+            color: #94a3b8;
+            font-size: 0.875rem;
+            transition: border-color 0.2s, background 0.2s, color 0.2s;
+            cursor: pointer;
         }
+
+        #dropArea:hover {
+            border-color: #93a8f7;
+            background: #f0f2ff;
+            color: #4f6ef7;
+        }
+
         #dropArea.dragover {
-            border-color: #000;
+            border-color: #4f6ef7;
+            background: #eef1ff;
+            color: #4f6ef7;
         }
+
+        .button-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        #selectFiles {
+            background: #4f6ef7;
+            color: #fff;
+        }
+
+        #selectFiles:hover {
+            background: #3b5de7;
+        }
+
+        #clearList {
+            background: #fff;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+        }
+
+        #clearList:hover {
+            background: #f9fafb;
+            color: #374151;
+        }
+
+        #renameFiles {
+            background: #10b981;
+            color: #fff;
+            margin-left: auto;
+        }
+
+        #renameFiles:hover {
+            background: #059669;
+        }
+
         #fileTable {
             display: none;
         }
+
+        #fileList {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8125rem;
+            table-layout: fixed;
+        }
+
+        #fileList thead th {
+            text-align: left;
+            padding: 6px 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #6b7280;
+            border-bottom: 2px solid #e5e7eb;
+            background: #f9fafb;
+        }
+
+        #fileList tbody td {
+            padding: 6px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            word-break: break-all;
+            font-size: 0.8125rem;
+        }
+
+        #fileList tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        #fileList tbody tr:hover {
+            background: #f8fafc;
+        }
+
         #variantOptions {
             display: none;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .field-group {
+            margin-bottom: 8px;
+        }
+
+        .field-group:last-child {
+            margin-bottom: 0;
         }
     </style>
 </head>
 <body>
     <h1>Banner Renamer v3</h1>
 
-    <label for="baseAdName">Base Ad Name:</label>
-    <input type="text" id="baseAdName" maxlength="100">
-    <br><br>
+    <div class="page-layout">
+        <div class="left-col">
+            <div class="card">
+                <div class="card-title">Naming</div>
+                <div class="field-group">
+                    <label for="baseAdName">Base Ad Name</label>
+                    <input type="text" id="baseAdName" maxlength="100" placeholder="e.g. SpringSale_Brand">
+                </div>
+            </div>
 
-    <label>Casing Options:</label>
-    <input type="radio" id="forceUppercase" name="casing" value="uppercase" checked>
-    <label for="forceUppercase">Force Uppercase</label>
-    <input type="radio" id="forceLowercase" name="casing" value="lowercase">
-    <label for="forceLowercase">Force Lowercase</label>
-    <input type="radio" id="keepCasing" name="casing" value="keep">
-    <label for="keepCasing">Keep Casing</label>
-    <br><br>
+            <div class="card">
+                <div class="card-title">Options</div>
+                <div class="field-group">
+                    <label>Casing</label>
+                    <div class="radio-group">
+                        <label><input type="radio" id="forceUppercase" name="casing" value="uppercase" checked><span>Force Uppercase</span></label>
+                        <label><input type="radio" id="forceLowercase" name="casing" value="lowercase"><span>Force Lowercase</span></label>
+                        <label><input type="radio" id="keepCasing" name="casing" value="keep"><span>Keep Original</span></label>
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label>Dimensions</label>
+                    <div class="radio-group">
+                        <label><input type="radio" id="uppercaseX" name="dimensionCasing" value="uppercase" checked><span>Uppercase X</span></label>
+                        <label><input type="radio" id="lowercaseX" name="dimensionCasing" value="lowercase"><span>Lowercase x</span></label>
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label>A/B Variant Suffix</label>
+                    <div class="radio-group">
+                        <label><input type="radio" id="includeVariantNo" name="includeVariant" value="no" checked><span>No</span></label>
+                        <label><input type="radio" id="includeVariantYes" name="includeVariant" value="yes"><span>Yes</span></label>
+                    </div>
+                </div>
+                <div id="variantOptions">
+                    <div class="field-group">
+                        <label for="variant">Variant</label>
+                        <select id="variant">
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label for="variantDescription">Variant Description</label>
+                        <input type="text" id="variantDescription" maxlength="100" placeholder="e.g. BlueCTA">
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <label>Dimension Options:</label>
-    <input type="radio" id="uppercaseX" name="dimensionCasing" value="uppercase" checked>
-    <label for="uppercaseX">Uppercase X in Dimensions</label>
-    <input type="radio" id="lowercaseX" name="dimensionCasing" value="lowercase">
-    <label for="lowercaseX">Lowercase x in Dimensions</label>
-    <br><br>
+        <div class="right-col">
+            <div class="card">
+                <div class="card-title">Files</div>
+                <div id="dropArea">Drag and drop files here (up to 20)</div>
+                <div class="button-row">
+                    <button id="selectFiles">Select Files</button>
+                    <button id="clearList">Clear List</button>
+                    <button id="renameFiles">Rename &amp; Download ZIP</button>
+                </div>
+            </div>
 
-    <label>Include A/B Variant Suffix?</label>
-    <input type="radio" id="includeVariantNo" name="includeVariant" value="no" checked>
-    <label for="includeVariantNo">No</label>
-    <input type="radio" id="includeVariantYes" name="includeVariant" value="yes">
-    <label for="includeVariantYes">Yes</label>
-    <br><br>
-
-    <div id="variantOptions">
-        <label for="variant">Variant:</label>
-        <select id="variant">
-            <option value="A">A</option>
-            <option value="B">B</option>
-            <option value="C">C</option>
-            <option value="D">D</option>
-        </select>
-        <br><br>
-
-        <label for="variantDescription">Variant Description:</label>
-        <input type="text" id="variantDescription" maxlength="100">
-        <br><br>
+            <div id="fileTable">
+                <div class="card">
+                    <div class="card-title">Preview</div>
+                    <table id="fileList">
+                        <thead>
+                            <tr>
+                                <th>Original Filename</th>
+                                <th>Renamed Filename</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div id="dropArea">Drag and drop files here</div>
-    <button id="selectFiles">Select Files</button>
-    <button id="clearList">Clear List</button>
-    <button id="renameFiles">Rename Files</button>
-    <br><br>
-
-    <div id="fileTable">
-        <table id="fileList" border="1">
-            <thead>
-                <tr>
-                    <th>Original Filename</th>
-                    <th>Renamed Filename</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </div>
-    <br>
 
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
