@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML5 Creative Namer</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px 24px;
+            background: #f5f7fa;
+            color: #1a1a2e;
+            line-height: 1.5;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 16px;
+            color: #1a1a2e;
+        }
+
+        .page-layout {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 16px;
+            align-items: start;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .card-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6b7280;
+            margin: 0 0 8px;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 7px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            margin-top: 4px;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            background: #fff;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #4f6ef7;
+            box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.15);
+        }
+
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8125rem;
+            font-weight: 400;
+            border: 1px solid #e5e7eb;
+            transition: background 0.15s, border-color 0.15s;
+        }
+
+        .radio-group label:hover {
+            background: #f0f2ff;
+            border-color: #c7d0fe;
+        }
+
+        .radio-group input[type="radio"] {
+            accent-color: #4f6ef7;
+        }
+
+        .radio-group input[type="radio"]:checked + span {
+            color: #4f6ef7;
+            font-weight: 500;
+        }
+
+        select {
+            padding: 7px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            margin-top: 4px;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #4f6ef7;
+            box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.15);
+        }
+
+        #dropArea {
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 24px 16px;
+            text-align: center;
+            margin: 0;
+            background: #f8fafc;
+            color: #94a3b8;
+            font-size: 0.875rem;
+            transition: border-color 0.2s, background 0.2s, color 0.2s;
+            cursor: pointer;
+        }
+
+        #dropArea:hover {
+            border-color: #93a8f7;
+            background: #f0f2ff;
+            color: #4f6ef7;
+        }
+
+        #dropArea.dragover {
+            border-color: #4f6ef7;
+            background: #eef1ff;
+            color: #4f6ef7;
+        }
+
+        .button-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        button {
+            padding: 7px 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.1s;
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        #selectFiles {
+            background: #4f6ef7;
+            color: #fff;
+        }
+
+        #selectFiles:hover {
+            background: #3b5de7;
+        }
+
+        #clearList {
+            background: #fff;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+        }
+
+        #clearList:hover {
+            background: #f9fafb;
+            color: #374151;
+        }
+
+        #downloadCsv {
+            background: #10b981;
+            color: #fff;
+            margin-left: auto;
+        }
+
+        #downloadCsv:hover {
+            background: #059669;
+        }
+
+        #fileTable {
+            display: none;
+        }
+
+        #fileList {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8125rem;
+            table-layout: fixed;
+        }
+
+        #fileList thead th {
+            text-align: left;
+            padding: 6px 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #6b7280;
+            border-bottom: 2px solid #e5e7eb;
+            background: #f9fafb;
+        }
+
+        #fileList tbody td {
+            padding: 6px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            word-break: break-all;
+            font-size: 0.8125rem;
+        }
+
+        #fileList tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        #fileList tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .warning {
+            color: #d97706;
+            font-style: italic;
+        }
+
+        #variantOptions {
+            display: none;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .field-group {
+            margin-bottom: 8px;
+        }
+
+        .field-group:last-child {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Littlefield Agency - HTML5 Creative Namer</h1>
+
+    <div class="page-layout">
+        <div class="left-col">
+            <div class="card">
+                <div class="card-title">Naming</div>
+                <div class="field-group">
+                    <label for="baseAdName">Base Ad Name</label>
+                    <input type="text" id="baseAdName" maxlength="100" placeholder="e.g. SpringSale_Brand">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Options</div>
+                <div class="field-group">
+                    <label>Casing</label>
+                    <div class="radio-group">
+                        <label><input type="radio" id="forceUppercase" name="casing" value="uppercase" checked><span>Force Uppercase</span></label>
+                        <label><input type="radio" id="forceLowercase" name="casing" value="lowercase"><span>Force Lowercase</span></label>
+                        <label><input type="radio" id="keepCasing" name="casing" value="keep"><span>Keep Original</span></label>
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label>Dimensions</label>
+                    <div class="radio-group">
+                        <label><input type="radio" id="uppercaseX" name="dimensionCasing" value="uppercase" checked><span>Uppercase X</span></label>
+                        <label><input type="radio" id="lowercaseX" name="dimensionCasing" value="lowercase"><span>Lowercase x</span></label>
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label>A/B Variant Suffix</label>
+                    <div class="radio-group">
+                        <label><input type="radio" id="includeVariantNo" name="includeVariant" value="no" checked><span>No</span></label>
+                        <label><input type="radio" id="includeVariantYes" name="includeVariant" value="yes"><span>Yes</span></label>
+                    </div>
+                </div>
+                <div id="variantOptions">
+                    <div class="field-group">
+                        <label for="variant">Variant</label>
+                        <select id="variant">
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                            <option value="C">C</option>
+                            <option value="D">D</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label for="variantDescription">Variant Description</label>
+                        <input type="text" id="variantDescription" maxlength="100" placeholder="e.g. BlueCTA">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="right-col">
+            <div class="card">
+                <div class="card-title">HTML5 Creative ZIPs</div>
+                <div id="dropArea">Drag and drop .zip files here (up to 20)</div>
+                <div class="button-row">
+                    <button id="selectFiles">Select Files</button>
+                    <button id="clearList">Clear List</button>
+                    <button id="downloadCsv">Download CSV</button>
+                </div>
+            </div>
+
+            <div id="fileTable">
+                <div class="card">
+                    <div class="card-title">Preview</div>
+                    <table id="fileList">
+                        <thead>
+                            <tr>
+                                <th>Original Filename</th>
+                                <th>Dimensions</th>
+                                <th>Generated Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script>
+        const selectFilesButton = document.getElementById('selectFiles');
+        const clearListButton = document.getElementById('clearList');
+        const downloadCsvButton = document.getElementById('downloadCsv');
+        const fileList = document.getElementById('fileList').querySelector('tbody');
+        const dropArea = document.getElementById('dropArea');
+        const fileTable = document.getElementById('fileTable');
+        const variantOptions = document.getElementById('variantOptions');
+        let selectedFiles = [];
+        let parsedCreatives = [];
+
+        document.querySelectorAll('input[name="includeVariant"]').forEach((elem) => {
+            elem.addEventListener('change', () => {
+                if (document.getElementById('includeVariantYes').checked) {
+                    variantOptions.style.display = 'block';
+                } else {
+                    variantOptions.style.display = 'none';
+                }
+                updatePreview();
+            });
+        });
+
+        document.getElementById('baseAdName').addEventListener('input', updatePreview);
+        document.querySelectorAll('input[name="casing"]').forEach((elem) => elem.addEventListener('change', updatePreview));
+        document.querySelectorAll('input[name="dimensionCasing"]').forEach((elem) => elem.addEventListener('change', updatePreview));
+        document.getElementById('variant').addEventListener('change', updatePreview);
+        document.getElementById('variantDescription').addEventListener('input', updatePreview);
+
+        dropArea.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            dropArea.classList.add('dragover');
+        });
+
+        dropArea.addEventListener('dragleave', () => {
+            dropArea.classList.remove('dragover');
+        });
+
+        dropArea.addEventListener('drop', (event) => {
+            event.preventDefault();
+            dropArea.classList.remove('dragover');
+            const files = Array.from(event.dataTransfer.files)
+                .filter(f => f.name.toLowerCase().endsWith('.zip'))
+                .slice(0, 20);
+            if (files.length > 0) {
+                selectedFiles = files;
+                processZipFiles();
+            }
+        });
+
+        selectFilesButton.addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.zip';
+            input.multiple = true;
+            input.onchange = () => {
+                selectedFiles = Array.from(input.files).slice(0, 20);
+                processZipFiles();
+            };
+            input.click();
+        });
+
+        clearListButton.addEventListener('click', () => {
+            selectedFiles = [];
+            parsedCreatives = [];
+            fileList.innerHTML = '';
+            fileTable.style.display = 'none';
+        });
+
+        downloadCsvButton.addEventListener('click', () => {
+            if (parsedCreatives.length === 0) return;
+
+            const baseAdName = document.getElementById('baseAdName').value.trim();
+            const casingOption = document.querySelector('input[name="casing"]:checked').value;
+            const dimensionCasingOption = document.querySelector('input[name="dimensionCasing"]:checked').value;
+            const includeVariant = document.querySelector('input[name="includeVariant"]:checked').value;
+            const variant = document.getElementById('variant').value;
+            const variantDescription = document.getElementById('variantDescription').value.trim();
+
+            let csvContent = "Original Filename,Dimensions,Generated Name\n";
+            for (const creative of parsedCreatives) {
+                const generatedName = generateName(creative.dimensions, baseAdName, casingOption, dimensionCasingOption, includeVariant, variant, variantDescription);
+                const originalName = creative.filename.replace(/"/g, '""');
+                csvContent += `"${originalName}","${creative.dimensions}","${generatedName}"\n`;
+            }
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            saveAs(blob, 'html5_creative_names.csv');
+        });
+
+        async function processZipFiles() {
+            parsedCreatives = [];
+
+            for (const file of selectedFiles) {
+                const dimensions = await extractDimensionsFromZip(file);
+                parsedCreatives.push({
+                    filename: file.name,
+                    dimensions: dimensions
+                });
+            }
+
+            updatePreview();
+        }
+
+        async function extractDimensionsFromZip(file) {
+            try {
+                const zip = await JSZip.loadAsync(file);
+                const htmlFiles = Object.keys(zip.files).filter(name =>
+                    name.toLowerCase().endsWith('.html') && !name.startsWith('__MACOSX')
+                );
+
+                for (const htmlFile of htmlFiles) {
+                    const content = await zip.files[htmlFile].async('string');
+
+                    // Try ad.size meta tag (Google/DCM standard, also used by TTD)
+                    const metaMatch = content.match(/<meta\s+name=["']ad\.size["']\s+content=["']width=(\d+),\s*height=(\d+)["']/i);
+                    if (metaMatch) {
+                        return `${metaMatch[1]}x${metaMatch[2]}`;
+                    }
+
+                    // Try reverse attribute order
+                    const metaMatchReverse = content.match(/<meta\s+content=["']width=(\d+),\s*height=(\d+)["']\s+name=["']ad\.size["']/i);
+                    if (metaMatchReverse) {
+                        return `${metaMatchReverse[1]}x${metaMatchReverse[2]}`;
+                    }
+                }
+
+                // Fallback: try to extract dimensions from the zip filename
+                const filenameMatch = file.name.match(/(\d{2,4})x(\d{2,4})/i);
+                if (filenameMatch) {
+                    return `${filenameMatch[1]}x${filenameMatch[2]}`;
+                }
+
+                return 'unknown';
+            } catch (e) {
+                return 'error';
+            }
+        }
+
+        function generateName(dimensions, baseAdName, casingOption, dimensionCasingOption, includeVariant, variant, variantDescription) {
+            if (!dimensions || dimensions === 'unknown' || dimensions === 'error') {
+                return '—';
+            }
+
+            let name = `${baseAdName}_${dimensions}`;
+
+            if (includeVariant === 'yes') {
+                name += `.${variant}_${variantDescription.replace(/ /g, '_')}`;
+            }
+
+            if (casingOption === 'uppercase') {
+                name = name.toUpperCase();
+            } else if (casingOption === 'lowercase') {
+                name = name.toLowerCase();
+            }
+
+            if (dimensionCasingOption === 'lowercase') {
+                name = name.replace(/X/g, 'x');
+            } else if (dimensionCasingOption === 'uppercase') {
+                name = name.replace(/x/g, 'X');
+            }
+
+            return name;
+        }
+
+        function updatePreview() {
+            const baseAdName = document.getElementById('baseAdName').value.trim();
+            const casingOption = document.querySelector('input[name="casing"]:checked').value;
+            const dimensionCasingOption = document.querySelector('input[name="dimensionCasing"]:checked').value;
+            const includeVariant = document.querySelector('input[name="includeVariant"]:checked').value;
+            const variant = document.getElementById('variant').value;
+            const variantDescription = document.getElementById('variantDescription').value.trim();
+
+            fileList.innerHTML = '';
+
+            for (const creative of parsedCreatives) {
+                const row = document.createElement('tr');
+
+                const originalCell = document.createElement('td');
+                originalCell.textContent = creative.filename;
+                row.appendChild(originalCell);
+
+                const dimCell = document.createElement('td');
+                dimCell.textContent = creative.dimensions;
+                if (creative.dimensions === 'unknown' || creative.dimensions === 'error') {
+                    dimCell.classList.add('warning');
+                }
+                row.appendChild(dimCell);
+
+                const nameCell = document.createElement('td');
+                const generatedName = generateName(creative.dimensions, baseAdName, casingOption, dimensionCasingOption, includeVariant, variant, variantDescription);
+                nameCell.textContent = generatedName;
+                if (generatedName === '—') {
+                    nameCell.classList.add('warning');
+                }
+                row.appendChild(nameCell);
+
+                fileList.appendChild(row);
+            }
+
+            fileTable.style.display = parsedCreatives.length > 0 ? 'block' : 'none';
+        }
+    </script>
+</body>
+</html>
